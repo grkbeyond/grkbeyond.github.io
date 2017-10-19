@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="基础,线程," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="多线程并发编程是Java编程中重要的一块内容。多线程是指一个程序（通常是一个进程）运行时产生了不止一个线程。很多人会把并发，并行两个概念混掉。在这里先说下两个概念的区别：1，并行：多个cpu实例或者多台机器同时执行一段处理逻辑，是真正的同时。2，并发：通过cpu调度算法，让用户看上去同时执行，实际上从cpu操作层面不是真正的同时。并发往往在场景中有公用的资源。接下来回归正题。本文主要针对java多">
+<meta name="keywords" content="基础,线程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java多线程">
+<meta property="og:url" content="https://grkbeyond.github.io.git/2015/04/10/java多线程基础/index.html">
+<meta property="og:site_name" content="Grk&#39;s Blog">
+<meta property="og:description" content="多线程并发编程是Java编程中重要的一块内容。多线程是指一个程序（通常是一个进程）运行时产生了不止一个线程。很多人会把并发，并行两个概念混掉。在这里先说下两个概念的区别：1，并行：多个cpu实例或者多台机器同时执行一段处理逻辑，是真正的同时。2，并发：通过cpu调度算法，让用户看上去同时执行，实际上从cpu操作层面不是真正的同时。并发往往在场景中有公用的资源。接下来回归正题。本文主要针对java多">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-10-19T13:15:38.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java多线程">
+<meta name="twitter:description" content="多线程并发编程是Java编程中重要的一块内容。多线程是指一个程序（通常是一个进程）运行时产生了不止一个线程。很多人会把并发，并行两个概念混掉。在这里先说下两个概念的区别：1，并行：多个cpu实例或者多台机器同时执行一段处理逻辑，是真正的同时。2，并发：通过cpu调度算法，让用户看上去同时执行，实际上从cpu操作层面不是真正的同时。并发往往在场景中有公用的资源。接下来回归正题。本文主要针对java多">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://grkbeyond.github.io.git/2015/04/10/java多线程基础/"/>
+
+
+
+
+
+  <title>Java多线程 | Grk's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Grk's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://grkbeyond.github.io.git/2015/04/10/java多线程基础/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高荣坤">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Grk's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java多线程</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-04-10T10:03:11+08:00">
+                2015-04-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java基础/" itemprop="url" rel="index">
+                    <span itemprop="name">Java基础</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>多线程并发编程是Java编程中重要的一块内容。多线程是指一个程序（通常是一个进程）运行时产生了不止一个线程。很多人会把并发，并行两个概念混掉。在这里先说下两个概念的区别：1，并行：多个cpu实例或者多台机器同时执行一段处理逻辑，是真正的同时。2，并发：通过cpu调度算法，让用户看上去同时执行，实际上从cpu操作层面不是真正的同时。并发往往在场景中有公用的资源。接下来回归正题。本文主要针对java多线程基础。主要讲解其使用方法、线程同步、线程状态、线程间的通信方式及相应的一些线程函数用法、概述等。<br><a id="more"></a> </p>
+<h2 id="多线程概念及相关对象介绍"><a href="#多线程概念及相关对象介绍" class="headerlink" title="多线程概念及相关对象介绍"></a>多线程概念及相关对象介绍</h2><h3 id="线程概念"><a href="#线程概念" class="headerlink" title="线程概念"></a>线程概念</h3><p>1，进程：是一个正在执行中的程序，每个进程都有独立的代码和数据空间，一个进程可以包含多个线程。进程间的切换会有较大的开销。<br>2，线程：进程中的一个独立的控制单元，线程在控制着进程的执行。同一类线程共享代码和数据空间，每个线程有独立的运行栈和程序计数器(PC)。线程切换开销小。java中提供了对线程这类事物的描述。就是thread类。</p>
+<h3 id="线程的创建"><a href="#线程的创建" class="headerlink" title="线程的创建"></a>线程的创建</h3><p>####方式1：继承Thread类。<br>Thread 类实现了Runnable接口1，定义类继承Thread类2，复写Thread类中的run方法。将自定义的逻辑代码写在在run方法中，让线程运行。3，调用线程的start方法，该方法两个作用：启动线程，调用run方法。创建示例代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">DemoThread</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</div><div class="line">    	<span class="keyword">for</span>(<span class="keyword">int</span> x=<span class="number">0</span>;x&lt;<span class="number">50</span>;x++)&#123;</div><div class="line">	        <span class="comment">//当线程继承Thread类时，直接使用this即可获得当前线程</span></div><div class="line">	        <span class="comment">//Thread对象的getName()返回当前线程的名字</span></div><div class="line">	        System.out.println(getName()+<span class="string">".."</span>+i);</div><div class="line">	        <span class="comment">//System.out.println(Thread.currentThread().getName()+"..."+i);</span></div><div class="line">    	&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ThreadDemo</span></span>&#123;</div><div class="line">    FirstThread tf = <span class="keyword">new</span> FirstThread();<span class="comment">//创建好一个线程。</span></div><div class="line">    ft.start();<span class="comment">//开启线程，并执行该线程的run方法。</span></div><div class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> x=<span class="number">0</span>;x&lt;<span class="number">20</span>;x++)&#123;</div><div class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">"..."</span>+i);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>####方式2:实现Runable接口<br>1，定义类实现Runnable接口<br>2，覆写Runnable接口中的run方法。将线程要运行的代码写在run方法中。<br>3，通过Thread类建立线程对象。<br>4，将Runnable接口中的子类对象作为实际参数传递给Thread类的构造函数。<br>5，调用Thread类的start方法开启线程并调用Runnable接口子类的run方法。注意，这种方式必须将Runnable作为Thread类的参数，然后通过Thread的start方法来创建一个新线程来执行该子任务。如果调用Runnable的run方法的话，是不会创建新线程的，这跟普通的方法调用没有任何区别。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">RunnableThread</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span></div><div class="line"><span class="class"></span>&#123;</div><div class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>&#123;</div><div class="line">	    <span class="keyword">for</span>(<span class="keyword">int</span> x=<span class="number">0</span>;x&lt;<span class="number">50</span>;x++)</div><div class="line">	    &#123;</div><div class="line">	        <span class="comment">//当线程实现Runnable接口时</span></div><div class="line">	        <span class="comment">//如果想要获取当前线程，只能用Thread.currentThread()</span></div><div class="line">	        System.out.println(Thread.currentThread().getName()+<span class="string">"..."</span>+i);</div><div class="line">	    &#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ThreadDemo</span></span></div><div class="line"><span class="class"></span>&#123;</div><div class="line">    RunnableThread rt = <span class="keyword">new</span> RunnableThread();</div><div class="line">    <span class="comment">//下面两个线程共用rt这个资源</span></div><div class="line">    <span class="keyword">new</span> Thread(rt).start();</div><div class="line">    <span class="keyword">new</span> Thread(rt).start();<span class="comment">//开启线程，并执行该线程的run方法。</span></div><div class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> x=<span class="number">0</span>;x&lt;<span class="number">50</span>;x++)</div><div class="line">    &#123;</div><div class="line">        System.out.println(Thread.currentThread().getName()+<span class="string">"..."</span>+i);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="两种方式的对比："><a href="#两种方式的对比：" class="headerlink" title="两种方式的对比："></a>两种方式的对比：</h4><p>一.采用继承Thread类的方式1.因为线程类已经继承了Thread类，所以不能再继承其他类父类。2.如果需要访问当前线程，则无需使用Thread.currentThread()方法，直接使用this即可获得当前线程。二.采用实现Runnable接口的方式创建多线程1.线程类只是实现了Runnable接口，还可以继承其他类。2.在这种方式下，多个线程共享一个Runnable子类对象，所以非常适合多个相同线程来吹同一份资源的情况。3.如果需要访问当前线程，则必须使用Thread.currentThread()方法。</p>
+<h2 id="线程同步"><a href="#线程同步" class="headerlink" title="线程同步"></a>线程同步</h2><h3 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h3><p>线程安全：指在并发的情况之下，一段代码代码同时经过多个线程使用，线程的调度顺序不影响任何结果。即是安全的。反过来，线程不安全就意味着线程的调度顺序会影响最终结果。当多个线程操作同一个线程资源时容易出现线程安全问题。</p>
+<h3 id="synchronized"><a href="#synchronized" class="headerlink" title="synchronized"></a>synchronized</h3><p>JAVA对于多线程的安全问题提供了专业的解决方式。</p>
+<h4 id="同步代码块"><a href="#同步代码块" class="headerlink" title="同步代码块"></a>同步代码块</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Thread1</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</div><div class="line">    Object lock;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </div><div class="line">       <span class="keyword">synchronized</span>(lock)&#123;</div><div class="line">         ..<span class="keyword">do</span> something   <span class="comment">//哪些代码需要同步？看哪些语句在操作共享数据。</span></div><div class="line">       &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>1，obj(对象)如同锁（监视器）持有锁的线程可以在同步中执行。没有持有锁的线程即有cpu的执行权，也进不去。因为没有获取锁<br>2，obj（对象）的选定虽然java允许使用任何对象作为同步监视器，但想一下同步监视器的目的：阻止两个线程对同一个共享资源进行并发访问，因此通常使用可能被并发访问的共享资源充当同步监视器。<br>3，好处和弊端好处：解决多线程的安全问题。弊端：多个线程都需要判断锁，较为消耗资源。</p>
+<h4 id="同步函数"><a href="#同步函数" class="headerlink" title="同步函数"></a>同步函数</h4><p>与同步代码块对应，java的多线程安全支持还提供了同步方法，同步方法就是使用synchronized关键字来修饰某个方法，则该方法称为同步方法。对于同步方法而言，无须显式指定同步监视器，同步方法的同步监视器是this，也就是该对象本身。静态的同步方法，使用的锁是该方法所在类的字节码文件对象。类名.class</p>
+<h4 id="同步的前提"><a href="#同步的前提" class="headerlink" title="同步的前提"></a>同步的前提</h4><p>1，必须有两个或者两个以上的线程。（两个人以上才锁门）<br>2，必须是多个线程使用同一个锁。如果加了同步还出现安全问题就要考虑到两个前提是否都满足。</p>
+<h4 id="寻找多线程中的安全问题"><a href="#寻找多线程中的安全问题" class="headerlink" title="寻找多线程中的安全问题"></a>寻找多线程中的安全问题</h4><p>1，明确哪些代码是多线程运行代码。<br>2，明确共享数据。<br>3，明确多线程运行代码中哪些语句是操作共享数据的。</p>
+<h4 id="利用同步实现的单例模式的懒汉式"><a href="#利用同步实现的单例模式的懒汉式" class="headerlink" title="利用同步实现的单例模式的懒汉式"></a>利用同步实现的单例模式的懒汉式</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Single</span></span></div><div class="line"><span class="class"></span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Single s = <span class="keyword">null</span>;</div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Single</span><span class="params">()</span></span>&#123;&#125;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span>  Single <span class="title">getInstance</span><span class="params">()</span></span></div><div class="line"><span class="function">    </span>&#123;</div><div class="line">        <span class="keyword">if</span>(s==<span class="keyword">null</span>)</div><div class="line">        &#123;</div><div class="line">            <span class="keyword">synchronized</span>(Single.class)</div><div class="line">            &#123;</div><div class="line">                <span class="keyword">if</span>(s==<span class="keyword">null</span>)</div><div class="line">                    s = <span class="keyword">new</span> Single();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> s;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="注意事项："><a href="#注意事项：" class="headerlink" title="注意事项："></a>注意事项：</h4><p>1，当多个线程等待一个对象锁时，没有获取到锁的线程将发生阻塞。<br>2，尽量不使用 synchronized(string)，是因为string的实际锁为string的常量池对象，多个值相同的string对象可能持有同一个锁。</p>
+<h2 id="线程通信"><a href="#线程通信" class="headerlink" title="线程通信"></a>线程通信</h2><h3 id="通信方法"><a href="#通信方法" class="headerlink" title="通信方法"></a>通信方法</h3><p>线程同步除了synchronized互斥同步外，也可以使用wait/notify实现等待、通知的机制。<br>1，wait():导致当前线程等待，直到其他线程调用该监视器的notify()或者notifyAll()方法来唤醒该线程。调用wait()方法的当前线程会释放相关联的监视器的锁<br>2，notify():唤醒在此同步监视器上等待的单个线程。<br>3，或者notifyAll():唤醒在此同步监视器上等待的所有线程。当多个线程进行存，多个线程进行取时，为了避免程序最后被阻塞无法继续向下执行，可以使用notifyAll()。</p>
+<h3 id="wait-和sleep-有什么区别？"><a href="#wait-和sleep-有什么区别？" class="headerlink" title="wait()和sleep()有什么区别？"></a>wait()和sleep()有什么区别？</h3><p>1，wait()：释放资源(CPU执行权)，释放锁；sleep()：释放资源(CPU执行权)，不释放锁。<br>2，sleep是Thread类的方法,wait是Object类中定义的方法.<br>3，Thread.sleep和Object.wait都会暂停当前的线程，OS会将执行时间分配给其它线程。 区别是, 调用wait后, 需要别的线程执行notify/notifyAll才能够重新获得CPU执行时间。而sleep只需要等待睡眠时间到了就行。</p>
+<h3 id="注意事项：-1"><a href="#注意事项：-1" class="headerlink" title="注意事项："></a>注意事项：</h3><p>wait/notify属于Object类的方法，但wait和notify方法调用，必须获取对象的对象级别锁，即synchronized同步方法或同步块中使用。</p>
+<p>－－－－－消费者，生产者示例－－－－－－</p>
+<h2 id="Lock类与Condition类"><a href="#Lock类与Condition类" class="headerlink" title="Lock类与Condition类"></a>Lock类与Condition类</h2><h3 id="Lock类"><a href="#Lock类" class="headerlink" title="Lock类"></a>Lock类</h3><p>将同步Synchronized（隐视加锁，解锁） 替换成实现Lock操作（显示加锁，解锁）( Lock实现提供了比使用synchronized方法和语句可获得的更广泛的锁定操作)lock():获取锁。unLock()释放锁。</p>
+<h3 id="Condition类"><a href="#Condition类" class="headerlink" title="Condition类"></a>Condition类</h3><p>如果程序不使用synchronized关键字来保证同步，而是直接使用Lock对象来保证同步，则系统不存在隐式的同步监视器，也就不能使用wait(),notify(),notifyAll()方法进行线程通信。所以在使用Lock对象时，java提供了一个Condition类来保持协调。Condition实例被绑定在一个Lock对象上，要获得特定Lock实例的Condition实例，调用Lock对象的newCondition()方法即可，Condition替代了同步监视器的功能。Condition提供了3个方法await(),signal(),signalAll()来替换wait()wait(),notify(),notifyAll().</p>
+<h3 id="使用示例"><a href="#使用示例" class="headerlink" title="使用示例"></a>使用示例</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">BoundedBuffer</span> </span>&#123;</div><div class="line">  <span class="keyword">final</span> Lock lock = <span class="keyword">new</span> ReentrantLock();</div><div class="line">  <span class="keyword">final</span> Condition notFull  = lock.newCondition(); </div><div class="line">  <span class="keyword">final</span> Condition notEmpty = lock.newCondition(); </div><div class="line"></div><div class="line">  <span class="keyword">final</span> Object[] items = <span class="keyword">new</span> Object[<span class="number">100</span>];</div><div class="line">  <span class="keyword">int</span> putptr, takeptr, count;</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">put</span><span class="params">(Object x)</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</div><div class="line">    lock.lock();</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">      <span class="keyword">while</span> (count == items.length) </div><div class="line">        notFull.await();</div><div class="line">      items[putptr] = x; </div><div class="line">      <span class="keyword">if</span> (++putptr == items.length) putptr = <span class="number">0</span>;</div><div class="line">      ++count;</div><div class="line">      notEmpty.signal();</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">      lock.unlock();</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">take</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;</div><div class="line">    lock.lock();</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">      <span class="keyword">while</span> (count == <span class="number">0</span>) </div><div class="line">        notEmpty.await();</div><div class="line">      Object x = items[takeptr]; </div><div class="line">      <span class="keyword">if</span> (++takeptr == items.length) takeptr = <span class="number">0</span>;</div><div class="line">      --count;</div><div class="line">      notFull.signal();</div><div class="line">      <span class="keyword">return</span> x;</div><div class="line">    &#125; <span class="keyword">finally</span> &#123;</div><div class="line">      lock.unlock();</div><div class="line">    &#125;</div><div class="line">  &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="多线程其他方法"><a href="#多线程其他方法" class="headerlink" title="多线程其他方法"></a>多线程其他方法</h2><h3 id="停止线程"><a href="#停止线程" class="headerlink" title="停止线程"></a>停止线程</h3><p>首先要声明的是：一个线程不应该由其他线程来强制中断或停止，而是应该由线程自己自行停止，所以，Thread.stop, Thread.suspend, Thread.resume 都已经被废弃了。<br>以前通过thread.stop()可以停止一个线程，注意stop()方法是可以由一个线程去停止另外一个线程。但是这种方式是不安全的。现在有线程1，线程2。假设线程1调用线程2的stop方法去停止线程2，线程1一般情况下是不知道线程2执行的具体情况的，突然停止会导致线程2的一些清理工作无法完成.还有一个情况是执行stop方法后线程2会马上释放锁，这有可能会引发数据不同步问题。一般情况下线程会在以下情况下停止</p>
+<h4 id="方式一：使用退出标志，使线程正常退出，也就是当run方法完成后线程终止。"><a href="#方式一：使用退出标志，使线程正常退出，也就是当run方法完成后线程终止。" class="headerlink" title="方式一：使用退出标志，使线程正常退出，也就是当run方法完成后线程终止。"></a>方式一：使用退出标志，使线程正常退出，也就是当run方法完成后线程终止。</h4><h4 id="方式二：使用Thread-interrupt-，Thread-interrupt-的作用其实不是中断线程，而是通知线程应该中断了，具体到底中断还是继续运行，应该由被通知的线程自己处理。"><a href="#方式二：使用Thread-interrupt-，Thread-interrupt-的作用其实不是中断线程，而是通知线程应该中断了，具体到底中断还是继续运行，应该由被通知的线程自己处理。" class="headerlink" title="方式二：使用Thread.interrupt()，Thread.interrupt 的作用其实不是中断线程，而是通知线程应该中断了，具体到底中断还是继续运行，应该由被通知的线程自己处理。"></a>方式二：使用Thread.interrupt()，Thread.interrupt 的作用其实不是中断线程，而是通知线程应该中断了，具体到底中断还是继续运行，应该由被通知的线程自己处理。</h4><p>1，如果线程处于被阻塞状态（例如处于sleep, wait, join 等状态），那么线程将立即退出被阻塞状态，并抛出一个InterruptedException异常。<br>2，如果线程处于正常活动状态，那么会将该线程的中断标志设置为 true，仅此而已。被设置中断标志的线程将继续正常运行，不受影响。在使用的时候通过循环检查.interrupted()方法的值，如果被设置了中断标志就自行停止线程。然后在调用阻塞方法时要正确处理InterruptedException异常就好。<br>还有一点就是Thread.interrupted()会清除标志位。是为了下次继续检测标志位。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/基础/" rel="tag"># 基础</a>
+          
+            <a href="/tags/线程/" rel="tag"># 线程</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/05/10/Handle解析/" rel="prev" title="Handle解析">
+                Handle解析 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">高荣坤</p>
+              <p class="site-description motion-element" itemprop="description">努力到无能为力</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#多线程概念及相关对象介绍"><span class="nav-number">1.</span> <span class="nav-text">多线程概念及相关对象介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#线程概念"><span class="nav-number">1.1.</span> <span class="nav-text">线程概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#线程的创建"><span class="nav-number">1.2.</span> <span class="nav-text">线程的创建</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#两种方式的对比："><span class="nav-number">1.2.1.</span> <span class="nav-text">两种方式的对比：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程同步"><span class="nav-number">2.</span> <span class="nav-text">线程同步</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#线程安全"><span class="nav-number">2.1.</span> <span class="nav-text">线程安全</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#synchronized"><span class="nav-number">2.2.</span> <span class="nav-text">synchronized</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#同步代码块"><span class="nav-number">2.2.1.</span> <span class="nav-text">同步代码块</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#同步函数"><span class="nav-number">2.2.2.</span> <span class="nav-text">同步函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#同步的前提"><span class="nav-number">2.2.3.</span> <span class="nav-text">同步的前提</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#寻找多线程中的安全问题"><span class="nav-number">2.2.4.</span> <span class="nav-text">寻找多线程中的安全问题</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#利用同步实现的单例模式的懒汉式"><span class="nav-number">2.2.5.</span> <span class="nav-text">利用同步实现的单例模式的懒汉式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#注意事项："><span class="nav-number">2.2.6.</span> <span class="nav-text">注意事项：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程通信"><span class="nav-number">3.</span> <span class="nav-text">线程通信</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#通信方法"><span class="nav-number">3.1.</span> <span class="nav-text">通信方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#wait-和sleep-有什么区别？"><span class="nav-number">3.2.</span> <span class="nav-text">wait()和sleep()有什么区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注意事项：-1"><span class="nav-number">3.3.</span> <span class="nav-text">注意事项：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lock类与Condition类"><span class="nav-number">4.</span> <span class="nav-text">Lock类与Condition类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Lock类"><span class="nav-number">4.1.</span> <span class="nav-text">Lock类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Condition类"><span class="nav-number">4.2.</span> <span class="nav-text">Condition类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用示例"><span class="nav-number">4.3.</span> <span class="nav-text">使用示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多线程其他方法"><span class="nav-number">5.</span> <span class="nav-text">多线程其他方法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#停止线程"><span class="nav-number">5.1.</span> <span class="nav-text">停止线程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#方式一：使用退出标志，使线程正常退出，也就是当run方法完成后线程终止。"><span class="nav-number">5.1.1.</span> <span class="nav-text">方式一：使用退出标志，使线程正常退出，也就是当run方法完成后线程终止。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#方式二：使用Thread-interrupt-，Thread-interrupt-的作用其实不是中断线程，而是通知线程应该中断了，具体到底中断还是继续运行，应该由被通知的线程自己处理。"><span class="nav-number">5.1.2.</span> <span class="nav-text">方式二：使用Thread.interrupt()，Thread.interrupt 的作用其实不是中断线程，而是通知线程应该中断了，具体到底中断还是继续运行，应该由被通知的线程自己处理。</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 &mdash; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">高荣坤</span>
+
+  
+</div>
+
+
+  <div class="powered-by">  个人专属</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">博客 &mdash; Grk</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
