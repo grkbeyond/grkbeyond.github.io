@@ -88,7 +88,7 @@
 <meta property="og:description" content="多线程并发编程是Java编程中重要的一块内容。多线程是指一个程序（通常是一个进程）运行时产生了不止一个线程。很多人会把并发，并行两个概念混掉。在这里先说下两个概念的区别：1，并行：多个cpu实例或者多台机器同时执行一段处理逻辑，是真正的同时。2，并发：通过cpu调度算法，让用户看上去同时执行，实际上从cpu操作层面不是真正的同时。并发往往在场景中有公用的资源。接下来回归正题。本文主要针对java多">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://a4.qpic.cn/psb?/V13CxAwd23yrM5/GVHOFg1c2R7x3oRLAZ8dN1ji9l41UpiY6BS3XqXJC0M!/m/dFsBAAAAAAAAnull&bo=3AimAAAAAAADB1A!&rf=photolist&t=5">
-<meta property="og:updated_time" content="2017-11-05T02:38:13.000Z">
+<meta property="og:updated_time" content="2017-11-05T02:45:11.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Java多线程">
 <meta name="twitter:description" content="多线程并发编程是Java编程中重要的一块内容。多线程是指一个程序（通常是一个进程）运行时产生了不止一个线程。很多人会把并发，并行两个概念混掉。在这里先说下两个概念的区别：1，并行：多个cpu实例或者多台机器同时执行一段处理逻辑，是真正的同时。2，并发：通过cpu调度算法，让用户看上去同时执行，实际上从cpu操作层面不是真正的同时。并发往往在场景中有公用的资源。接下来回归正题。本文主要针对java多">
@@ -379,7 +379,7 @@
 <h2 id="多线程其他方法"><a href="#多线程其他方法" class="headerlink" title="多线程其他方法"></a>多线程其他方法</h2><h3 id="停止线程"><a href="#停止线程" class="headerlink" title="停止线程"></a>停止线程</h3><p>首先要声明的是：一个线程不应该由其他线程来强制中断或停止，而是应该由线程自己自行停止，所以，Thread.stop, Thread.suspend, Thread.resume 都已经被废弃了。<br>以前通过thread.stop()可以停止一个线程，注意stop()方法是可以由一个线程去停止另外一个线程。但是这种方式是不安全的。现在有线程1，线程2。假设线程1调用线程2的stop方法去停止线程2，线程1一般情况下是不知道线程2执行的具体情况的，突然停止会导致线程2的一些清理工作无法完成.还有一个情况是执行stop方法后线程2会马上释放锁，这有可能会引发数据不同步问题。一般情况下线程会在以下情况下停止</p>
 <h4 id="方式一：使用退出标志，使线程正常退出，也就是当run方法完成后线程终止。"><a href="#方式一：使用退出标志，使线程正常退出，也就是当run方法完成后线程终止。" class="headerlink" title="方式一：使用退出标志，使线程正常退出，也就是当run方法完成后线程终止。"></a>方式一：使用退出标志，使线程正常退出，也就是当run方法完成后线程终止。</h4><h4 id="方式二：使用Thread-interrupt-，Thread-interrupt-的作用其实不是中断线程，而是通知线程应该中断了，具体到底中断还是继续运行，应该由被通知的线程自己处理。"><a href="#方式二：使用Thread-interrupt-，Thread-interrupt-的作用其实不是中断线程，而是通知线程应该中断了，具体到底中断还是继续运行，应该由被通知的线程自己处理。" class="headerlink" title="方式二：使用Thread.interrupt()，Thread.interrupt 的作用其实不是中断线程，而是通知线程应该中断了，具体到底中断还是继续运行，应该由被通知的线程自己处理。"></a>方式二：使用Thread.interrupt()，Thread.interrupt 的作用其实不是中断线程，而是通知线程应该中断了，具体到底中断还是继续运行，应该由被通知的线程自己处理。</h4><p>1，如果线程处于被阻塞状态（例如处于sleep, wait, join 等状态），那么线程将立即退出被阻塞状态，并抛出一个InterruptedException异常。<br>2，如果线程处于正常活动状态，那么会将该线程的中断标志设置为 true，仅此而已。被设置中断标志的线程将继续正常运行，不受影响。在使用的时候通过循环检查.interrupted()方法的值，如果被设置了中断标志就自行停止线程。然后在调用阻塞方法时要正确处理InterruptedException异常就好。<br>还有一点就是Thread.interrupted()会清除标志位。是为了下次继续检测标志位。</p>
 <p><iframe src="http://a3.qpic.cn/psb?/V13CxAwd23yrM5/40H7*j4KuOj1XRVHm1albk5zsMKx6kdTRSc9HKD0NSI!/b/dFsBAAAAAAAA&bo=dwFXAgAAAAACDwg!&rf=viewer_4"></iframe></p>
-<p><iframe src="http://ww4.sinaimg.cn/mw690/e75a115bgw1f3rrbzv1m8g209v0diqv7.gif"><br>  <img src="http://a4.qpic.cn/psb?/V13CxAwd23yrM5/GVHOFg1c2R7x3oRLAZ8dN1ji9l41UpiY6BS3XqXJC0M!/m/dFsBAAAAAAAAnull&bo=3AimAAAAAAADB1A!&rf=photolist&t=5"></iframe></p>
+<p><iframe src="http://ww4.sinaimg.cn/mw690/e75a115bgw1f3rrbzv1m8g209v0diqv7.gif"><br>  <img src="http://a4.qpic.cn/psb?/V13CxAwd23yrM5/GVHOFg1c2R7x3oRLAZ8dN1ji9l41UpiY6BS3XqXJC0M!/m/dFsBAAAAAAAAnull&bo=3AimAAAAAAADB1A!&rf=photolist&t=5"><br>!c]<a href="http://a4.qpic.cn/psb?/V13CxAwd23yrM5/GVHOFg1c2R7x3oRLAZ8dN1ji9l41UpiY6BS3XqXJC0M!/m/dFsBAAAAAAAAnull&amp;bo=3AimAAAAAAADB1A!&amp;rf=photolist&amp;t=5" target="_blank" rel="external">dd</a></iframe></p>
 
       
     </div>
