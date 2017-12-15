@@ -94,7 +94,7 @@
 <meta property="og:image" content="http://m.qpic.cn/psb?/V13CxAwd23yrM5/w80OoW4tJy6yX1xlPVBtNs1jMxS.yOqkc*btuXXaymk!/b/dPIAAAAAAAAA&bo=TAU4BMUFmAQDCQU!&rf=viewer_4">
 <meta property="og:image" content="http://m.qpic.cn/psb?/V13CxAwd23yrM5/w80OoW4tJy6yX1xlPVBtNs1jMxS.yOqkc*btuXXaymk!/b/dPIAAAAAAAAA&bo=TAU4BMUFmAQDCQU!&rf=viewer_4">
 <meta property="og:image" content="http://m.qpic.cn/psb?/V13CxAwd23yrM5/KMEKKGXWUvbnGkypisUoMNuwIGjfHY1DGkhEn.IzFQc!/b/dPMAAAAAAAAA&bo=KASAAgAAAAADB4w!&rf=viewer_4">
-<meta property="og:updated_time" content="2017-12-15T08:47:39.000Z">
+<meta property="og:updated_time" content="2017-12-15T08:48:51.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="属性动画基础解析">
 <meta name="twitter:description" content="属性动画是Android 3.0版本之后系统提供的一种动画模式是对已有传统动画的补充(逐帧动画(frame-by-frame animation)和补间动画(tweened animation)).">
@@ -401,7 +401,7 @@
 <p>##在XML中声明动画<br>在res目录下面新建一个animator文件夹，所有属性动画的xml文件都要放在这个文件夹当中。<br>属性动画支持的标签是：<br>1，标签animator  对应代码中的ValueAnimator<br>2，标签objectAnimator  对应代码中的ObjectAnimator<br>3，标签set  对应代码中的AnimatorSet<br>标签objectAnimator使用  x轴方向偏移400像素。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">&lt;objectAnimator xmlns:android=<span class="string">"http://schemas.android.com/apk/res/android"</span></div><div class="line">    android:propertyName=<span class="string">"x"</span></div><div class="line">    android:valueTo=<span class="string">"400"</span></div><div class="line">    android:duration=<span class="string">"2000"</span>  </div><div class="line">    android:valueType=<span class="string">"intType"</span>/&gt;</div></pre></td></tr></table></figure></p>
 <p>标签set使用 旋转360度同时进行淡入淡出动画。<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">&lt;set xmlns:android=<span class="string">"http://schemas.android.com/apk/res/android"</span>android:ordering=<span class="string">"together"</span> &gt;  </div><div class="line">    &lt;objectAnimator  </div><div class="line">        android:duration=<span class="string">"3000"</span>  </div><div class="line">        android:propertyName=<span class="string">"rotation"</span>  </div><div class="line">        android:valueFrom=<span class="string">"0"</span>  </div><div class="line">        android:valueTo=<span class="string">"360"</span>  </div><div class="line">        android:valueType=<span class="string">"floatType"</span> &gt;  </div><div class="line">    &lt;/objectAnimator&gt;  </div><div class="line">    &lt;set android:ordering=<span class="string">"sequentially"</span> &gt;  </div><div class="line">        &lt;objectAnimator  </div><div class="line">            android:duration=<span class="string">"1500"</span>  </div><div class="line">            android:propertyName=<span class="string">"alpha"</span>  </div><div class="line">            android:valueFrom=<span class="string">"1"</span>  </div><div class="line">            android:valueTo=<span class="string">"0"</span>  </div><div class="line">            android:valueType=<span class="string">"floatType"</span> &gt;  </div><div class="line">        &lt;/objectAnimator&gt;  </div><div class="line">        &lt;objectAnimator  </div><div class="line">            android:duration=<span class="string">"1500"</span>  </div><div class="line">            android:propertyName=<span class="string">"alpha"</span>  </div><div class="line">            android:valueFrom=<span class="string">"0"</span>  </div><div class="line">            android:valueTo=<span class="string">"1"</span>  </div><div class="line">            android:valueType=<span class="string">"floatType"</span> &gt;  </div><div class="line">        &lt;/objectAnimator&gt;  </div><div class="line">    &lt;/set&gt;  </div><div class="line">&lt;/set&gt;</div></pre></td></tr></table></figure></p>
 <p>在代码中应用写好的xml动画代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">AnimatorSet set = (AnimatorSet) AnimatorInflater.loadAnimator(myContext,</div><div class="line">    R.anim.property_animator);</div><div class="line">set.setTarget(myObject);</div><div class="line">set.start();</div></pre></td></tr></table></figure></p>
-<p><img src="http://m.qpic.cn/psb?/V13CxAwd23yrM5/w80OoW4tJy6yX1xlPVBtNs1jMxS.yOqkc*btuXXaymk!/b/dPIAAAAAAAAA&amp;bo=TAU4BMUFmAQDCQU!&amp;rf=viewer_4" alt="dd"><br><img src="http://m.qpic.cn/psb?/V13CxAwd23yrM5/w80OoW4tJy6yX1xlPVBtNs1jMxS.yOqkc*btuXXaymk!/b/dPIAAAAAAAAA&bo=TAU4BMUFmAQDCQU!&rf=viewer_4" width="300px" height="350px"><br><img src="http://m.qpic.cn/psb?/V13CxAwd23yrM5/KMEKKGXWUvbnGkypisUoMNuwIGjfHY1DGkhEn.IzFQc!/b/dPMAAAAAAAAA&bo=KASAAgAAAAADB4w!&rf=viewer_4" width="1000px" height="1050px"></p>
+<p><img src="http://m.qpic.cn/psb?/V13CxAwd23yrM5/w80OoW4tJy6yX1xlPVBtNs1jMxS.yOqkc*btuXXaymk!/b/dPIAAAAAAAAA&amp;bo=TAU4BMUFmAQDCQU!&amp;rf=viewer_4" alt="dd"><br><img src="http://m.qpic.cn/psb?/V13CxAwd23yrM5/w80OoW4tJy6yX1xlPVBtNs1jMxS.yOqkc*btuXXaymk!/b/dPIAAAAAAAAA&bo=TAU4BMUFmAQDCQU!&rf=viewer_4" width="300px" height="350px"><br><img src="http://m.qpic.cn/psb?/V13CxAwd23yrM5/KMEKKGXWUvbnGkypisUoMNuwIGjfHY1DGkhEn.IzFQc!/b/dPMAAAAAAAAA&bo=KASAAgAAAAADB4w!&rf=viewer_4" width="2000px" height="2000px"></p>
 
       
     </div>
@@ -434,8 +434,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2015/05/10/Handle解析/" rel="next" title="Handle基础解析">
-                <i class="fa fa-chevron-left"></i> Handle基础解析
+              <a href="/2015/09/10/属性动画源码分析/" rel="next" title="属性动画基础解析">
+                <i class="fa fa-chevron-left"></i> 属性动画基础解析
               </a>
             
           </div>
@@ -443,10 +443,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2015/09/10/属性动画源码分析/" rel="prev" title="属性动画基础解析">
-                属性动画基础解析 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
