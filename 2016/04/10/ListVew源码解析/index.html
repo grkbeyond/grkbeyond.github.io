@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android基础,ListView," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="ListView是一个以列表形式用来展示多条数据的Android原生控件，可以通过上下滑动来查看更多的数据。即使数据再多，也不会发生内存溢出的问题。">
+<meta name="keywords" content="Android基础,ListView">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ListView源码解析">
+<meta property="og:url" content="https://grkbeyond.github.io.git/2016/04/10/ListVew源码解析/index.html">
+<meta property="og:site_name" content="Grk&#39;s Blog">
+<meta property="og:description" content="ListView是一个以列表形式用来展示多条数据的Android原生控件，可以通过上下滑动来查看更多的数据。即使数据再多，也不会发生内存溢出的问题。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-12-29T11:46:58.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ListView源码解析">
+<meta name="twitter:description" content="ListView是一个以列表形式用来展示多条数据的Android原生控件，可以通过上下滑动来查看更多的数据。即使数据再多，也不会发生内存溢出的问题。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://grkbeyond.github.io.git/2016/04/10/ListVew源码解析/"/>
+
+
+
+
+
+  <title>ListView源码解析 | Grk's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Grk's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://grkbeyond.github.io.git/2016/04/10/ListVew源码解析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="高荣坤">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Grk's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ListView源码解析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-04-10T12:03:11+08:00">
+                2016-04-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>ListView是一个以列表形式用来展示多条数据的Android原生控件，可以通过上下滑动来查看更多的数据。即使数据再多，也不会发生内存溢出的问题。<a id="more"></a> </p>
+<h2 id="RecycleBin"><a href="#RecycleBin" class="headerlink" title="RecycleBin"></a>RecycleBin</h2><p>ListView加载许多数据而不会导致内存溢出的最重要的功臣就是RecycleBin。是AbsListView内部类，这样AbsListView的所有子类都能有这个特性。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">RecycleBin</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> RecyclerListener mRecyclerListener;</div><div class="line">        <span class="comment">/**</span></div><div class="line"><span class="comment">         * The position of the first view stored in mActiveViews.</span></div><div class="line"><span class="comment">         */</span></div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mFirstActivePosition;</div><div class="line">       </div><div class="line">    <span class="keyword">private</span> View[] mActiveViews = <span class="keyword">new</span> View[<span class="number">0</span>];</div><div class="line"></div><div class="line">    <span class="keyword">private</span> ArrayList&lt;View&gt;[] mScrapViews;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mViewTypeCount;</div><div class="line">    <span class="keyword">private</span> ArrayList&lt;View&gt; mCurrentScrap;</div><div class="line"></div><div class="line">         <span class="comment">/**</span></div><div class="line"><span class="comment">         * 保存指定view到mActiveViews中。</span></div><div class="line"><span class="comment">         *</span></div><div class="line"><span class="comment">         * <span class="doctag">@param</span> childCount 要存储的view的数量</span></div><div class="line"><span class="comment">         * <span class="doctag">@param</span> firstActivePosition mActiveViews集合中第一个view的position值。(第一个可见view)</span></div><div class="line"><span class="comment">         *       </span></div><div class="line"><span class="comment">         */</span></div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">fillActiveViews</span><span class="params">(<span class="keyword">int</span> childCount, <span class="keyword">int</span> firstActivePosition)</span> </span>&#123;</div><div class="line">            <span class="keyword">if</span> (mActiveViews.length &lt; childCount) &#123;</div><div class="line">                mActiveViews = <span class="keyword">new</span> View[childCount];</div><div class="line">            &#125;</div><div class="line">            mFirstActivePosition = firstActivePosition;</div><div class="line">            <span class="comment">//noinspection MismatchedReadAndWriteOfArray</span></div><div class="line">            <span class="keyword">final</span> View[] activeViews = mActiveViews;</div><div class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; childCount; i++) &#123;</div><div class="line">                View child = getChildAt(i);</div><div class="line">                AbsListView.LayoutParams lp = (AbsListView.LayoutParams) child.getLayoutParams();</div><div class="line">                <span class="comment">// Don't put header or footer views into the scrap heap</span></div><div class="line">                <span class="keyword">if</span> (lp != <span class="keyword">null</span> &amp;&amp; lp.viewType != ITEM_VIEW_TYPE_HEADER_OR_FOOTER) &#123;</div><div class="line">                    <span class="comment">// Note:  We do place AdapterView.ITEM_VIEW_TYPE_IGNORE in active views.</span></div><div class="line">                    <span class="comment">//        However, we will NOT place them into scrap views.</span></div><div class="line">                    activeViews[i] = child;</div><div class="line">                    <span class="comment">// Remember the position so that setupChild() doesn't reset state.</span></div><div class="line">                    lp.scrappedFromPosition = firstActivePosition + i;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="comment">/**</span></div><div class="line"><span class="comment">         * 根据position获取mActiveViews中相应的view。</span></div><div class="line"><span class="comment">         *</span></div><div class="line"><span class="comment">         * <span class="doctag">@param</span> position         </span></div><div class="line"><span class="comment">         */</span></div><div class="line">        <span class="function">View <span class="title">getActiveView</span><span class="params">(<span class="keyword">int</span> position)</span> </span>&#123;</div><div class="line">            <span class="keyword">int</span> index = position - mFirstActivePosition;</div><div class="line">            <span class="keyword">final</span> View[] activeViews = mActiveViews;</div><div class="line">            <span class="keyword">if</span> (index &gt;=<span class="number">0</span> &amp;&amp; index &lt; activeViews.length) &#123;</div><div class="line">                <span class="keyword">final</span> View match = activeViews[index];</div><div class="line">                activeViews[index] = <span class="keyword">null</span>;</div><div class="line">                <span class="keyword">return</span> match;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="comment">/**</span></div><div class="line"><span class="comment">         * 将一个废弃的view缓存起来</span></div><div class="line"><span class="comment">         *</span></div><div class="line"><span class="comment">         * <span class="doctag">@param</span> scrap         </span></div><div class="line"><span class="comment">         */</span></div><div class="line">        <span class="function"><span class="keyword">void</span> <span class="title">addScrapView</span><span class="params">(View scrap)</span> </span>&#123;</div><div class="line">            <span class="keyword">final</span> AbsListView.LayoutParams lp = (AbsListView.LayoutParams) scrap.getLayoutParams();</div><div class="line">            <span class="keyword">if</span> (lp == <span class="keyword">null</span>) &#123;</div><div class="line">                <span class="comment">// Can't recycle, but we don't know anything about the view.</span></div><div class="line">                <span class="comment">// Ignore it completely.</span></div><div class="line">                <span class="keyword">return</span>;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="comment">// Remove but don't scrap header or footer views, or views that</span></div><div class="line">            <span class="comment">// should otherwise not be recycled.</span></div><div class="line">            <span class="keyword">final</span> <span class="keyword">int</span> viewType = lp.viewType;</div><div class="line">            <span class="keyword">if</span> (!shouldRecycleViewType(viewType)) &#123;</div><div class="line">                <span class="comment">// Can't recycle. If it's not a header or footer, which have</span></div><div class="line">                <span class="comment">// special handling and should be ignored, then skip the scrap</span></div><div class="line">                <span class="comment">// heap and we'll fully detach the view later.</span></div><div class="line">                <span class="keyword">if</span> (viewType != ITEM_VIEW_TYPE_HEADER_OR_FOOTER) &#123;</div><div class="line">                    removeDetachedView(scrap, <span class="keyword">false</span>);  </div><div class="line">                &#125;</div><div class="line">                <span class="keyword">return</span>;</div><div class="line">            &#125;</div><div class="line">           <span class="keyword">if</span> (mViewTypeCount == <span class="number">1</span>) &#123;</div><div class="line">                dispatchFinishTemporaryDetach(scrap);</div><div class="line">                mCurrentScrap.add(scrap);</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                dispatchFinishTemporaryDetach(scrap);</div><div class="line">                mScrapViews[viewType].add(scrap);</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">if</span> (mRecyclerListener != <span class="keyword">null</span>) &#123;</div><div class="line">                mRecyclerListener.onMovedToScrapHeap(scrap);</div><div class="line">            &#125;       </div><div class="line">        &#125;</div><div class="line">         <span class="comment">/**</span></div><div class="line"><span class="comment">         * 从缓存集合中获取一个view</span></div><div class="line"><span class="comment">         *</span></div><div class="line"><span class="comment">         * <span class="doctag">@param</span> position         </span></div><div class="line"><span class="comment">         */</span></div><div class="line">        <span class="function">View <span class="title">getScrapView</span><span class="params">(<span class="keyword">int</span> position)</span> </span>&#123;</div><div class="line">            ArrayList&lt;View&gt; scrapViews;</div><div class="line">            <span class="keyword">if</span> (mViewTypeCount == <span class="number">1</span>) &#123;</div><div class="line">                scrapViews = mCurrentScrap;</div><div class="line">                <span class="keyword">int</span> size = scrapViews.size();</div><div class="line">                <span class="keyword">if</span> (size &gt; <span class="number">0</span>) &#123;</div><div class="line">                    <span class="keyword">return</span> scrapViews.remove(size - <span class="number">1</span>);</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">                &#125;</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                <span class="keyword">int</span> whichScrap = mAdapter.getItemViewType(position);</div><div class="line">                <span class="keyword">if</span> (whichScrap &gt;= <span class="number">0</span> &amp;&amp; whichScrap &lt; mScrapViews.length) &#123;</div><div class="line">                    scrapViews = mScrapViews[whichScrap];</div><div class="line">                    <span class="keyword">int</span> size = scrapViews.size();</div><div class="line">                    <span class="keyword">if</span> (size &gt; <span class="number">0</span>) &#123;</div><div class="line">                        <span class="keyword">return</span> scrapViews.remove(size - <span class="number">1</span>);</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="comment">/**</span></div><div class="line"><span class="comment">         * 给每种类型的数据项都单独启用一个RecycleBin缓存机制</span></div><div class="line"><span class="comment">         *</span></div><div class="line"><span class="comment">         * <span class="doctag">@param</span> viewTypeCount         </span></div><div class="line"><span class="comment">         */</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setViewTypeCount</span><span class="params">(<span class="keyword">int</span> viewTypeCount)</span> </span>&#123;</div><div class="line">            <span class="keyword">if</span> (viewTypeCount &lt; <span class="number">1</span>) &#123;</div><div class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Can't have a viewTypeCount &lt; 1"</span>);</div><div class="line">            &#125;</div><div class="line">            <span class="comment">// noinspection unchecked</span></div><div class="line">            ArrayList&lt;View&gt;[] scrapViews = <span class="keyword">new</span> ArrayList[viewTypeCount];</div><div class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; viewTypeCount; i++) &#123;</div><div class="line">                scrapViews[i] = <span class="keyword">new</span> ArrayList&lt;View&gt;();</div><div class="line">            &#125;</div><div class="line">            mViewTypeCount = viewTypeCount;</div><div class="line">            mCurrentScrap = scrapViews[<span class="number">0</span>];</div><div class="line">            mScrapViews = scrapViews;</div><div class="line">       &#125;</div><div class="line">｝</div></pre></td></tr></table></figure></p>
+<p>1，fillActiveViews()：保存指定View到mActiveViews中。<br>2，getActiveView()：根据position获取mActiveViews中相应的View。一旦被获取了之后就会从mActiveViews当中移除，下次获取同样位置的View将会返回null。<br>3，addScrapView()：将一个废弃的View缓存起来，RecycleBin当中使用mScrapViews和mCurrentScrap这两个List来存储废弃View。<br>4，getScrapView()：从缓存集合中获取一个View。</p>
+<h2 id="ListView首次展示数据。"><a href="#ListView首次展示数据。" class="headerlink" title="ListView首次展示数据。"></a>ListView首次展示数据。</h2><p>主要从onLayout()方法作为切入点来了解ListView的工作机制。<br>直接看ListView的layoutChildren()方法。</p>
+<h3 id="layutChildren"><a href="#layutChildren" class="headerlink" title="layutChildren()"></a>layutChildren()</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">layoutChildren</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">final</span> <span class="keyword">boolean</span> blockLayoutRequests = mBlockLayoutRequests;</div><div class="line">        <span class="keyword">if</span> (blockLayoutRequests) &#123;</div><div class="line">            <span class="keyword">return</span>;</div><div class="line">        &#125;</div><div class="line">            <span class="keyword">final</span> <span class="keyword">int</span> childrenTop = mListPadding.top;</div><div class="line">            <span class="keyword">final</span> <span class="keyword">int</span> childrenBottom = mBottom - mTop - mListPadding.bottom;</div><div class="line">          <span class="keyword">final</span> <span class="keyword">int</span> childCount = getChildCount();</div><div class="line"></div><div class="line">              …………………………………………………………………………………………… </div><div class="line">         </div><div class="line">            <span class="comment">// Pull all children into the RecycleBin.</span></div><div class="line">            <span class="comment">// These views will be reused if possible</span></div><div class="line">            <span class="keyword">final</span> <span class="keyword">int</span> firstPosition = mFirstPosition;</div><div class="line">            <span class="keyword">final</span> RecycleBin recycleBin = mRecycler;</div><div class="line">            <span class="keyword">if</span> (dataChanged) &#123;</div><div class="line">                <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; childCount; i++) &#123;</div><div class="line">                    recycleBin.addScrapView(getChildAt(i), firstPosition+i);</div><div class="line">                &#125;</div><div class="line">            &#125; <span class="keyword">else</span> &#123;</div><div class="line">                recycleBin.fillActiveViews(childCount, firstPosition);</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            <span class="comment">// Clear out old views</span></div><div class="line">            detachAllViewsFromParent();</div><div class="line">            recycleBin.removeSkippedScrap();</div><div class="line"></div><div class="line">            <span class="keyword">switch</span> (mLayoutMode) &#123;</div><div class="line">            <span class="keyword">case</span> LAYOUT_SET_SELECTION:</div><div class="line">                <span class="keyword">if</span> (newSel != <span class="keyword">null</span>) &#123;</div><div class="line">                    sel = fillFromSelection(newSel.getTop(), childrenTop, childrenBottom);</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    sel = fillFromMiddle(childrenTop, childrenBottom);</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">           …………………………………………………………………………………………… </div><div class="line">           …………………………………………………………………………………………… </div><div class="line">            <span class="keyword">default</span>:</div><div class="line">                <span class="keyword">if</span> (childCount == <span class="number">0</span>) &#123;</div><div class="line">                    <span class="keyword">if</span> (!mStackFromBottom) &#123;</div><div class="line">                        <span class="keyword">final</span> <span class="keyword">int</span> position = lookForSelectablePosition(<span class="number">0</span>, <span class="keyword">true</span>);</div><div class="line">                        setSelectedPositionInt(position);</div><div class="line">                        sel = fillFromTop(childrenTop);</div><div class="line">                    &#125; <span class="keyword">else</span> &#123;</div><div class="line">                        <span class="keyword">final</span> <span class="keyword">int</span> position = lookForSelectablePosition(mItemCount - <span class="number">1</span>, <span class="keyword">false</span>);</div><div class="line">                        setSelectedPositionInt(position);</div><div class="line">                        sel = fillUp(mItemCount - <span class="number">1</span>, childrenBottom);</div><div class="line">                    &#125;</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    <span class="keyword">if</span> (mSelectedPosition &gt;= <span class="number">0</span> &amp;&amp; mSelectedPosition &lt; mItemCount) &#123;</div><div class="line">                        sel = fillSpecific(mSelectedPosition,</div><div class="line">                                oldSel == <span class="keyword">null</span> ? childrenTop : oldSel.getTop());</div><div class="line">                    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (mFirstPosition &lt; mItemCount) &#123;</div><div class="line">                        sel = fillSpecific(mFirstPosition,</div><div class="line">                                oldFirst == <span class="keyword">null</span> ? childrenTop : oldFirst.getTop());</div><div class="line">                    &#125; <span class="keyword">else</span> &#123;</div><div class="line">                        sel = fillSpecific(<span class="number">0</span>, childrenTop);</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            &#125;</div><div class="line"></div><div class="line">            …………………………………………………………………………………………… </div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>ListView刚开始绘制的时候还没有子View,所以在第几行中，getChildCount()方法返回的是0。<br>在第几行，数据源没有发生变化，dataChanged为false，所以执行recycleBin.fillActiveViews(childCount, firstPosition)方法，现在没有子view所以这行代码没有实质性作用。<br>接下来一般会执行默认的布局模式(LAYOUT_NORMAL)代码，也就是第几行的default。childCount为0且默认是从上而下布局子View的，所以执行fillFromTop(childrenTop)方法。</p>
+<p>###fillFromTop(childrenTop)<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> View <span class="title">fillFromTop</span><span class="params">(<span class="keyword">int</span> nextTop)</span> </span>&#123;</div><div class="line">    mFirstPosition = Math.min(mFirstPosition, mSelectedPosition);</div><div class="line">    mFirstPosition = Math.min(mFirstPosition, mItemCount - <span class="number">1</span>);</div><div class="line">    <span class="keyword">if</span> (mFirstPosition &lt; <span class="number">0</span>) &#123;</div><div class="line">        mFirstPosition = <span class="number">0</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> fillDown(mFirstPosition, nextTop);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>其主要调用fillDown(mFirstPosition, nextTop)方法。</p>
+<h3 id="fillDown-mFirstPosition-nextTop-方法。"><a href="#fillDown-mFirstPosition-nextTop-方法。" class="headerlink" title="fillDown(mFirstPosition, nextTop)方法。"></a>fillDown(mFirstPosition, nextTop)方法。</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> View <span class="title">fillDown</span><span class="params">(<span class="keyword">int</span> pos, <span class="keyword">int</span> nextTop)</span> </span>&#123;</div><div class="line">    View selectedView = <span class="keyword">null</span>;</div><div class="line">    <span class="keyword">int</span> end = (getBottom() - getTop()) - mListPadding.bottom;</div><div class="line">    <span class="keyword">while</span> (nextTop &lt; end &amp;&amp; pos &lt; mItemCount) &#123;</div><div class="line">        <span class="comment">// is this the selected item?</span></div><div class="line">        <span class="keyword">boolean</span> selected = pos == mSelectedPosition;</div><div class="line">        View child = makeAndAddView(pos, nextTop, <span class="keyword">true</span>, mListPadding.left, selected);</div><div class="line">        nextTop = child.getBottom() + mDividerHeight;</div><div class="line">        <span class="keyword">if</span> (selected) &#123;</div><div class="line">            selectedView = child;</div><div class="line">        &#125;</div><div class="line">        pos++;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> selectedView;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>如果下一个子View的top小于ListView的bottom并且pos小于元素数量的时候执行while循环语句。当子view超出当前屏幕里或者pos大于mItemCount的时候跳出循环。<br>循环里主要的执行makeAndAddView(pos, nextTop, true, mListPadding.left, selected)。</p>
+<h3 id="makeAndAddView-int-position-int-y-boolean-flow-int-childrenLeft-boolean-selected"><a href="#makeAndAddView-int-position-int-y-boolean-flow-int-childrenLeft-boolean-selected" class="headerlink" title="makeAndAddView(int position, int y, boolean flow, int childrenLeft,boolean selected)"></a>makeAndAddView(int position, int y, boolean flow, int childrenLeft,boolean selected)</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> View <span class="title">makeAndAddView</span><span class="params">(<span class="keyword">int</span> position, <span class="keyword">int</span> y, <span class="keyword">boolean</span> flow, <span class="keyword">int</span> childrenLeft,</span></span></div><div class="line"><span class="function"><span class="params">        <span class="keyword">boolean</span> selected)</span> </span>&#123;</div><div class="line">    View child;</div><div class="line">    <span class="keyword">if</span> (!mDataChanged) &#123;</div><div class="line">        <span class="comment">// Try to use an exsiting view for this position</span></div><div class="line">        child = mRecycler.getActiveView(position);</div><div class="line">        <span class="keyword">if</span> (child != <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="comment">// Found it -- we're using an existing child</span></div><div class="line">            <span class="comment">// This just needs to be positioned</span></div><div class="line">            setupChild(child, position, y, flow, childrenLeft, selected, <span class="keyword">true</span>);</div><div class="line">            <span class="keyword">return</span> child;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// Make a new view for this position, or convert an unused view if possible</span></div><div class="line">    child = obtainView(position, mIsScrap);</div><div class="line">    <span class="comment">// This needs to be positioned and measured</span></div><div class="line">    setupChild(child, position, y, flow, childrenLeft, selected, mIsScrap[<span class="number">0</span>]);</div><div class="line">    <span class="keyword">return</span> child;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>1，在第几行，数据源没有发生变化，dataChanged为false,所以先执行mRecycler.getActiveView(position);获取一个缓存的View。之前在layoutChildren()方法中并没有缓存View所以返回的是null。<br>2，接着执行第几行的代码。obtainView(position, mIsScrap);<br>3，最后执行setupChild(child, position, y, flow, childrenLeft, selected, mIsScrap[0]);</p>
+<h3 id="obtainView-int-position-boolean-isScrap"><a href="#obtainView-int-position-boolean-isScrap" class="headerlink" title="obtainView(int position, boolean[] isScrap)"></a>obtainView(int position, boolean[] isScrap)</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="function">View <span class="title">obtainView</span><span class="params">(<span class="keyword">int</span> position, <span class="keyword">boolean</span>[] isScrap)</span> </span>&#123;</div><div class="line">    isScrap[<span class="number">0</span>] = <span class="keyword">false</span>;</div><div class="line">    View scrapView;</div><div class="line">    scrapView = mRecycler.getScrapView(position);</div><div class="line">    View child;</div><div class="line">    <span class="keyword">if</span> (scrapView != <span class="keyword">null</span>) &#123;</div><div class="line">        child = mAdapter.getView(position, scrapView, <span class="keyword">this</span>);</div><div class="line">        <span class="keyword">if</span> (child != scrapView) &#123;</div><div class="line">            mRecycler.addScrapView(scrapView);</div><div class="line">            <span class="keyword">if</span> (mCacheColorHint != <span class="number">0</span>) &#123;</div><div class="line">                child.setDrawingCacheBackgroundColor(mCacheColorHint);</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            isScrap[<span class="number">0</span>] = <span class="keyword">true</span>;</div><div class="line">            dispatchFinishTemporaryDetach(child);</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        child = mAdapter.getView(position, <span class="keyword">null</span>, <span class="keyword">this</span>);</div><div class="line">        <span class="keyword">if</span> (mCacheColorHint != <span class="number">0</span>) &#123;</div><div class="line">            child.setDrawingCacheBackgroundColor(mCacheColorHint);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> child;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>1，在obtainView方法中先在第几行执行mRecycler.getScrapView(position);获取一个废弃的view，当然这个时候也是没有，所以scrapView为null。执行 mAdapter.getView(position, null, this);这里getView方法的第二个参数传入的是空。通常重写Adapter的getView(int position, View convertView, ViewGroup parent)时候需要先判断convertView是否为空然后进行相应逻辑处理。<br>2，getView()执行完返回一个子View,然后执行setupChild(View child, int position, int y, boolean flowDown, int childrenLeft,boolean selected, boolean recycled)方法。</p>
+<h3 id="etupChild-View-child-int-position-int-y-boolean-flowDown-int-childrenLeft-boolean-selected-boolean-recycled"><a href="#etupChild-View-child-int-position-int-y-boolean-flowDown-int-childrenLeft-boolean-selected-boolean-recycled" class="headerlink" title="etupChild(View child, int position, int y, boolean flowDown, int childrenLeft,boolean selected, boolean recycled)"></a>etupChild(View child, int position, int y, boolean flowDown, int childrenLeft,boolean selected, boolean recycled)</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">setupChild</span><span class="params">(View child, <span class="keyword">int</span> position, <span class="keyword">int</span> y, <span class="keyword">boolean</span> flowDown, <span class="keyword">int</span> childrenLeft,</span></span></div><div class="line"><span class="function"><span class="params">        <span class="keyword">boolean</span> selected, <span class="keyword">boolean</span> recycled)</span> </span>&#123;</div><div class="line"></div><div class="line">   。。。。。。。。。。。。。。。。。。。。</div><div class="line"></div><div class="line">    p.viewType = mAdapter.getItemViewType(position);</div><div class="line">    <span class="keyword">if</span> ((recycled &amp;&amp; !p.forceAdd) || (p.recycledHeaderFooter &amp;&amp;</div><div class="line">            p.viewType == AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER)) &#123;</div><div class="line">        attachViewToParent(child, flowDown ? -<span class="number">1</span> : <span class="number">0</span>, p);</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        p.forceAdd = <span class="keyword">false</span>;</div><div class="line">        <span class="keyword">if</span> (p.viewType == AdapterView.ITEM_VIEW_TYPE_HEADER_OR_FOOTER) &#123;</div><div class="line">            p.recycledHeaderFooter = <span class="keyword">true</span>;</div><div class="line">        &#125;</div><div class="line">        addViewInLayout(child, flowDown ? -<span class="number">1</span> : <span class="number">0</span>, p, <span class="keyword">true</span>);</div><div class="line">    &#125;</div><div class="line">   。。。。。。。。。。。。。</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>调用addViewInLayout()方法将obtainView()方法返回的子View添加到了ListView当中。</p>
+<p>###最后<br>这样通过fillDown的while循环，ListView第一页的数据就被加载并且展示出来。由于while循环条件限制，就算有很多数据，最多也只会加载第一页的数据。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android基础/" rel="tag"># Android基础</a>
+          
+            <a href="/tags/ListView/" rel="tag"># ListView</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/09/10/属性动画源码分析/" rel="next" title="属性动画源码分析">
+                <i class="fa fa-chevron-left"></i> 属性动画源码分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">高荣坤</p>
+              <p class="site-description motion-element" itemprop="description">努力到无能为力</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#RecycleBin"><span class="nav-number">1.</span> <span class="nav-text">RecycleBin</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ListView首次展示数据。"><span class="nav-number">2.</span> <span class="nav-text">ListView首次展示数据。</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#layutChildren"><span class="nav-number">2.1.</span> <span class="nav-text">layutChildren()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fillDown-mFirstPosition-nextTop-方法。"><span class="nav-number">2.2.</span> <span class="nav-text">fillDown(mFirstPosition, nextTop)方法。</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#makeAndAddView-int-position-int-y-boolean-flow-int-childrenLeft-boolean-selected"><span class="nav-number">2.3.</span> <span class="nav-text">makeAndAddView(int position, int y, boolean flow, int childrenLeft,boolean selected)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#obtainView-int-position-boolean-isScrap"><span class="nav-number">2.4.</span> <span class="nav-text">obtainView(int position, boolean[] isScrap)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#etupChild-View-child-int-position-int-y-boolean-flowDown-int-childrenLeft-boolean-selected-boolean-recycled"><span class="nav-number">2.5.</span> <span class="nav-text">etupChild(View child, int position, int y, boolean flowDown, int childrenLeft,boolean selected, boolean recycled)</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2015 &mdash; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">高荣坤</span>
+
+  
+</div>
+
+
+  <div class="powered-by">  个人专属</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">博客 &mdash; Grk</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
