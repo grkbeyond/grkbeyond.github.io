@@ -88,8 +88,8 @@
 <meta property="og:description" content="ListView是一个以列表形式用来展示多条数据的Android原生控件，可以通过上下滑动来查看更多的数据。即使数据再多，也不会发生内存溢出的问题。">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://m.qpic.cn/psb?/V13CxAwd23yrM5/FmIcXAdLdEBrh99XONhxkCSQ.BKsIvY5C4loFIoYLJo!/b/dF4BAAAAAAAA&bo=RQg4BMAWmwsDCRs!&rf=viewer_4">
-<meta property="og:image" content="http://a3.qpic.cn/psb?/V13CxAwd23yrM5/uMT69eZVuQ7NdxbHDR2gojcxQA0HzDdplfoetXDvQGM!/m/dPIAAAAAAAAAnull&bo=TgY4BBUJFAYDCVY!&rf=photolist&t=5">
-<meta property="og:updated_time" content="2017-12-29T13:25:33.000Z">
+<meta property="og:image" content="http://a4.qpic.cn/psb?/V13CxAwd23yrM5/4HQN8Vy1Rt638xsCKDs*IjRq*iuJjWDMpFzIxaaxFzg!/m/dPMAAAAAAAAAnull&bo=TgY4BEEXkA8DCZE!&rf=photolist&t=5">
+<meta property="og:updated_time" content="2017-12-29T13:33:18.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ListView源码解析">
 <meta name="twitter:description" content="ListView是一个以列表形式用来展示多条数据的Android原生控件，可以通过上下滑动来查看更多的数据。即使数据再多，也不会发生内存溢出的问题。">
@@ -380,7 +380,7 @@
 <p>1，down为true就是向上滑动，新的数据从上往下加载，调用fillDown()方法。<br>2，down为false就是向下滑动，新的数据从下往上加载，调用fillUp()方法。<br>假设down为true，调用的是fillDown()方法，跟之前分析的ListView首次展示数据的流程一样，在fillDown()方法中通过while循环加载新的数据，循环里一样会去执行makeAndAddView()。然后会去执行ListView.obtainView(int position, boolean[] isScrap)方法。</p>
 <h3 id="ListView-obtainView-int-position-boolean-isScrap"><a href="#ListView-obtainView-int-position-boolean-isScrap" class="headerlink" title="ListView.obtainView(int position, boolean[] isScrap)"></a>ListView.obtainView(int position, boolean[] isScrap)</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="function">View <span class="title">obtainView</span><span class="params">(<span class="keyword">int</span> position, <span class="keyword">boolean</span>[] isScrap)</span> </span>&#123;</div><div class="line">    isScrap[<span class="number">0</span>] = <span class="keyword">false</span>;</div><div class="line">    View scrapView;</div><div class="line">    scrapView = mRecycler.getScrapView(position);</div><div class="line">    View child;</div><div class="line">    <span class="keyword">if</span> (scrapView != <span class="keyword">null</span>) &#123;</div><div class="line">        child = mAdapter.getView(position, scrapView, <span class="keyword">this</span>);</div><div class="line">        <span class="keyword">if</span> (child != scrapView) &#123;</div><div class="line">            mRecycler.addScrapView(scrapView);</div><div class="line">            <span class="keyword">if</span> (mCacheColorHint != <span class="number">0</span>) &#123;</div><div class="line">                child.setDrawingCacheBackgroundColor(mCacheColorHint);</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            isScrap[<span class="number">0</span>] = <span class="keyword">true</span>;</div><div class="line">            dispatchFinishTemporaryDetach(child);</div><div class="line">        &#125;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;</div><div class="line">        child = mAdapter.getView(position, <span class="keyword">null</span>, <span class="keyword">this</span>);</div><div class="line">        <span class="keyword">if</span> (mCacheColorHint != <span class="number">0</span>) &#123;</div><div class="line">            child.setDrawingCacheBackgroundColor(mCacheColorHint);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> child;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>一样先调用mRecycler.getScrapView(position)获取一个缓存的废弃View。在trackMotionScroll()时候我们会对移出屏幕的view缓存起来，所以这次会返回一个具体的对象，这样scrapView就不为null。接着还是执行child = mAdapter.getView(position, scrapView, this)方法。这个时候第二参数传的就不是null而是之前被废弃的View。这样在getView()方法中就可以直接复用这个View而不再重新创建一个对象出来。然后执行ListView.setupChild()方法将返回来的View重新attach到ListView当中。所以不管数据多少，ListView的子view就这么几个。</p>
-<h3 id="调用流程图-1"><a href="#调用流程图-1" class="headerlink" title="调用流程图"></a>调用流程图</h3><p><img src="http://a3.qpic.cn/psb?/V13CxAwd23yrM5/uMT69eZVuQ7NdxbHDR2gojcxQA0HzDdplfoetXDvQGM!/m/dPIAAAAAAAAAnull&bo=TgY4BBUJFAYDCVY!&rf=photolist&t=5" width="1000px" height="1050px"></p>
+<h3 id="调用流程图-1"><a href="#调用流程图-1" class="headerlink" title="调用流程图"></a>调用流程图</h3><p><img src="http://a4.qpic.cn/psb?/V13CxAwd23yrM5/4HQN8Vy1Rt638xsCKDs*IjRq*iuJjWDMpFzIxaaxFzg!/m/dPMAAAAAAAAAnull&bo=TgY4BEEXkA8DCZE!&rf=photolist&t=5" width="1000px" height="1050px"></p>
 
       
     </div>
@@ -575,7 +575,7 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; 2015 &mdash; <span itemprop="copyrightYear">2017</span>
+        <div class="copyright">&copy; 2015 &mdash; <span itemprop="copyrightYear">2021</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
